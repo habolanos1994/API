@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Add/Remove Tags</title>
+  </head>
+  <body>
+    <h1>Add Tag</h1>
+    <form action="/addTag" method="POST">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required>
+      <br>
+      <label for="alias">Alias:</label>
+      <input type="text" id="alias" name="alias" required>
+      <br>
+      <input type="submit" value="Add">
+    </form>
+
+    <h1>Remove Tag</h1>
+    <form action="/removeTag" method="POST">
+      <label for="alias">Alias:</label>
+      <input type="text" id="alias" name="alias" required>
+      <br>
+      <input type="submit" value="Remove">
+    </form>
+  </body>
+</html>

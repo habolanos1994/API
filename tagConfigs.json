@@ -1,0 +1,18 @@
+[
+    {
+        "name": "MARK001.Out_Running",
+        "alias": "MARKS1"
+    },
+    {
+        "name": "MARK002.Out_Running",
+        "alias": "MARKS2"
+    },
+    {
+        "name": "MARK003.Out_Running",
+        "alias": "MARKS3"
+    },
+    {
+        "name": "OEE_MARK004.CounterTriggerBits[1]",
+        "alias": "MARK4"
+    }
+]

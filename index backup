@@ -1,0 +1,110 @@
+const { ControllerManager } = require("st-ethernet-ip");
+const mqtt = require("mqtt");
+const pcname = require('os');
+const encoder = new TextDecoder('utf-8')
+const cm = new ControllerManager();
+
+
+
+
+const client = mqtt.connect("mqtt://dmv1maniot01", {
+  clientId: (pcname.hostname()),
+});
+
+const cont = cm.addController("10.63.192.32", 0, 200, true, 3000, {})
+
+cont.on("Connected", () => {
+  client.publish("returns/Bastian/Status/PLC", "PLC Connected", {
+    qos: 1,
+  });
+});
+
+cont.on("Error", (err) => {
+  client.publish("returns/Bastian/Status/PLC", err.message, {
+    qos: 1,
+  });
+});
+
+  cont.off("Connected", () => {
+    client.publish("returns/Bastian/Status/PLC", "PLC Disconect", {
+      qos: 1,
+    });
+  });
+  
+
+
+
+
+cont.on("TagChanged", (tag, prevValue) => {
+  if (tag.displayName === "Sorter Sick")
+    client.publish("returns/Bastian/scanner/Sorter", JSON.stringify(tag.value), {
+      qos: 1,
+    });
+  
+  if (tag.displayName === "Clarify Sick"){
+    const arr = new Uint8Array(tag.value.Data.slice(7,19))
+    const srt = encoder.decode(arr)
+    client.publish("returns/Bastian/scanner/clarify", JSON.stringify(srt), {
+        qos: 1,
+        });
+      }
+  
+  if (tag.displayName.includes('MARK'))
+    client.publish("returns/Bastian/Marks/"+tag.displayName, JSON.stringify(tag.value), {
+      qos: 1,
+    });
+
+
+    if (tag.displayName === "Running" || tag.displayName === "Faulted" || tag.displayName === "Stop" || tag.displayName === "EStop")
+    client.publish("returns/Bastian/Status/"+tag.displayName, JSON.stringify(tag.value), {
+      qos: 1,
+    });
+
+    if (tag.displayName === "AirPressure" || tag.displayName === "Comunication" || tag.displayName === "Jam" || tag.displayName === "Overload")
+    client.publish("returns/Bastian/Status/Error/"+tag.displayName, JSON.stringify(tag.value), {
+      qos: 1,
+    });
+    
+
+    if (tag.value)
+      client.publish("returns/Bastian/sensors", tag.displayName, {
+        qos: 1,
+      });
+
+    
+
+    
+});
+
+
+
+
+cont.connect();
+
+
+cont.addTag("MPA_RACK1:11:I.0", "Ramp Middle");
+cont.addTag("MPA_RACK1:10:I.1", "Rams Start");
+cont.addTag("MPA_RACK1:11:I.3", "Ramp Top");
+cont.addTag("MPA_RACK1:11:I.4", "IHS");
+cont.addTag("MPA_RACK1:11:I.5", "Sorter");
+cont.addTag("System1.Inp_SystemEStop", "EStop");
+cont.addTag("WebAPI_DivertConfimData_strBarcode", "Sorter Sick");
+cont.addTag("Scanner1:I", "Clarify Sick");
+cont.addTag("MARK001.Out_Running", "MARK1");
+cont.addTag("MARK002.Out_Running", "MARK2");
+cont.addTag("MARK003.Out_Running", "MARK3");
+cont.addTag("MARK004.Out_Running", "MARK4");
+cont.addTag("MARK005.Out_Running", "MARK5");
+cont.addTag("MARK006.Out_Running", "MARK6");
+cont.addTag("MARK007.Out_Running", "MARK7");
+cont.addTag("MARK008.Out_Running", "MARK8");
+cont.addTag("MARK009.Out_Running", "MARK9");
+cont.addTag("MARK010.Out_Running", "MARK10");
+cont.addTag("MARK011.Out_Running", "MARK11");
+cont.addTag("System1.Out_SystemRun", "Running")
+cont.addTag("System1.Inp_CBFault", "Faulted")
+cont.addTag("System1.Inp_SystemStop", "Stop")
+cont.addTag("System1.Inp_AirPressure", "AirPressure")
+cont.addTag("MPA_RACK1:17:O.3", "Overload")
+cont.addTag("System1.Inp_CommunicationFault", "Comunication")
+cont.addTag("MPA.Inp_BlueLight", "Jam")
