@@ -5,6 +5,7 @@ const schedule = require('node-schedule');
 const path = require("path");
 const { findmodel } = require("./model");
 const { sendsmtp } = require("./smtp")
+const writeFileAtomic = require('write-file-atomic');
 
 const os = require('os');
 const hostname = os.hostname();
@@ -152,7 +153,11 @@ function getallcount(){
     },
     Models: counters.Models
   }
-  fs.writeFileSync(countersFile, JSON.stringify(data, null, 2));
+
+  writeFileAtomic(countersFile, JSON.stringify(data, null, 2), (err) => {
+    if (err) throw err;
+    //console.log('The file has been saved!');
+  });
 }
 
 
